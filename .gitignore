@@ -1,6 +1,8 @@
-test
+tetrix
+obj/
 
 .vscode
 .idea
 
 .DS_Store
+*.dSYM
