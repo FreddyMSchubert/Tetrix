@@ -1,7 +1,7 @@
 #include "raylib.h"
 
 #include "GameLoop.hpp"
-#include "Constants.h"
+#include "Constants.hpp"
 
 int main()
 {
@@ -21,7 +21,6 @@ int main()
 		ClearBackground(BLACK);
 
 		game.update();
-
 		game.draw();
 
 		EndDrawing();

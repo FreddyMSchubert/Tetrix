@@ -1,5 +1,7 @@
 #pragma once
 
+#include <raylib.h>
+
 // Sizings
 
 #define CELL_SIZE 25
@@ -10,3 +12,6 @@
 #define SIDEBAR_WIDTH 100
 #define SCREEN_WIDTH GRIDE_WIDTH + SIDEBAR_WIDTH
 #define SCREEN_HEIGHT GRIDE_HEIGHT
+
+#define STATIC_COLOR Color({0, 255, 0, 255})
+#define DYNAMIC_COLOR Color({255, 0, 0, 255})

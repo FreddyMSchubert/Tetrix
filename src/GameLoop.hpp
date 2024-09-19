@@ -6,6 +6,8 @@
 #include <iostream>
 
 #include "./Minos/Mino.hpp"
+#include "./Minos/DynamicMino.hpp"
+#include "./Minos/StaticMino.hpp"
 
 class GameLoop
 {
