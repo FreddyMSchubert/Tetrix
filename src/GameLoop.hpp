@@ -1,15 +1,18 @@
 #pragma once
 
 #include <raylib.h>
-#include <algorithm>
+#include <vector>
+#include "./Minos/Mino.hpp"
 
 class GameLoop
 {
 	private:
-		GameLoop();
-
-		vector<vector<>>> grid;
+		std::vector<std::vector<Mino*>> grid;
 
 	public:
-		static void run();
+		GameLoop();
+		~GameLoop();
+
+		void initRandomly();
+		void draw();
 };

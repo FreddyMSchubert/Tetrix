@@ -1,7 +1,7 @@
 EXECUTABLE = tetrix
-CC = gcc
+CC = clang++
 
-CFLAGS = -I/opt/homebrew/Cellar/raylib/5.0/include -std=c++11 -Wall -Wextra -Werror -Wshadow -g -Wconversion -Wunreachable-code -Wuninitialized -fsanitize=address
+CFLAGS = -I/opt/homebrew/Cellar/raylib/5.0/include -std=c++11 -Wall -Wextra -Wshadow -g -fsanitize=address
 LDFLAGS = -L/opt/homebrew/Cellar/raylib/5.0/lib -lraylib -framework IOKit -framework Cocoa -framework OpenGL
 
 SRC_DIR = ./src

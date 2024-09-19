@@ -1,24 +1,26 @@
 #include "raylib.h"
 
-#define CELL_SIZE 25
-#define GRIDE_WIDTH CELL_SIZE * 10
-#define GRIDE_HEIGHT CELL_SIZE * 20
-#define SIDEBAR_WIDTH 100
-#define SCREEN_WIDTH GRIDE_WIDTH + SIDEBAR_WIDTH
-#define SCREEN_HEIGHT GRIDE_HEIGHT
+#include "GameLoop.hpp"
+#include "Constants.h"
 
 int main()
 {
-	InitWindow(SCREEN_WIDTH, GRIDE_HEIGHT, "window");
+	srand(time(NULL));
+
+	InitWindow(SCREEN_WIDTH, GRIDE_HEIGHT, "🟥🟧🟨 TETRIX 🟩🟦🟪");
 
 	SetTargetFPS(60);
+
+	GameLoop game;
+	game.initRandomly();
 
 	while (!WindowShouldClose())
 	{
 		BeginDrawing();
 
-		ClearBackground(RAYWHITE);
-		DrawText("Hello World!", 25, 200, 20, LIGHTGRAY);
+		ClearBackground(BLACK);
+
+		game.draw();
 
 		EndDrawing();
 	}

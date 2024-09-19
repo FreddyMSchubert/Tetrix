@@ -1,0 +1,12 @@
+#pragma once
+
+// Sizings
+
+#define CELL_SIZE 25
+#define CELLS_X 10
+#define CELLS_Y 20
+#define GRIDE_WIDTH CELL_SIZE * CELLS_X
+#define GRIDE_HEIGHT CELL_SIZE * CELLS_Y
+#define SIDEBAR_WIDTH 100
+#define SCREEN_WIDTH GRIDE_WIDTH + SIDEBAR_WIDTH
+#define SCREEN_HEIGHT GRIDE_HEIGHT
