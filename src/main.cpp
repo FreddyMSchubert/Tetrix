@@ -20,6 +20,8 @@ int main()
 
 		ClearBackground(BLACK);
 
+		game.update();
+
 		game.draw();
 
 		EndDrawing();
