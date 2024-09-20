@@ -22,13 +22,17 @@ void GameLoop::draw()
 
 bool GameLoop::update()
 {
-	frame++;
+	nextUpdate--;
 
 	// Input handling
 	if (!IsKeyPressed(KEY_RIGHT) && inputState.rightPressedLastFrame)
 		moveDynamicMinos(1, 0);
 	if (!IsKeyPressed(KEY_LEFT) && inputState.leftPressedLastFrame)
 		moveDynamicMinos(-1, 0);
+	if (IsKeyPressed(KEY_DOWN) && !inputState.downPressedLastFrame)
+		nextUpdate = 0;
+	if (!IsKeyPressed(KEY_SPACE) && inputState.spacePressedLastFrame)
+		while (moveDynamicMinos(0, 1));
 
 	inputState.rightPressedLastFrame = IsKeyPressed(KEY_RIGHT);
 	inputState.leftPressedLastFrame = IsKeyPressed(KEY_LEFT);
@@ -37,8 +41,11 @@ bool GameLoop::update()
 	inputState.spacePressedLastFrame = IsKeyPressed(KEY_SPACE);
 
 	// Update grid state
-	if (frame % DROP_SPEED == 0)
+	if (nextUpdate == 0)
 	{
+		nextUpdate = DROP_SPEED;
+		if (IsKeyDown(KEY_DOWN))
+			nextUpdate = SPED_UP_DROP_SPEED;
 
 		// Try to drop, if nothing changed, turn dynamics static
 		if (!moveDynamicMinos(0, 1))

@@ -11,18 +11,18 @@
 #include "./ShapeManager.hpp"
 
 typedef struct InputState {
-	bool rightPressedLastFrame = false;
-	bool leftPressedLastFrame = false;
-	bool downPressedLastFrame = false;
-	bool upPressedLastFrame = false;
-	bool spacePressedLastFrame = false;
+	bool rightPressedLastFrame = false;		// move right
+	bool leftPressedLastFrame = false;		// move left
+	bool downPressedLastFrame = false;		// drop faster
+	bool upPressedLastFrame = false;		// rotate
+	bool spacePressedLastFrame = false;		// hard drop
 } InputState;
 
 class GameLoop
 {
 	private:
 		std::vector<std::vector<Mino*>> grid;	// origin is top-left
-		unsigned int frame = 0;
+		unsigned int nextUpdate = DROP_SPEED;
 		InputState inputState;
 
 	public:
