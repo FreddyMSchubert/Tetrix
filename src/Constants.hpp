@@ -13,10 +13,9 @@
 #define SCREEN_WIDTH GRIDE_WIDTH + SIDEBAR_WIDTH
 #define SCREEN_HEIGHT GRIDE_HEIGHT
 
-// default colors
+// colors
 
-#define STATIC_COLOR Color({0, 255, 0, 255})
-#define DYNAMIC_COLOR Color({255, 0, 0, 255})
+#define GRID_COLOR Color({50, 50, 50, 255})
 
 // pieces
 
