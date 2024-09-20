@@ -11,17 +11,6 @@ GameLoop::~GameLoop()
 			delete cell;
 }
 
-void GameLoop::initRandomly()
-{
-	for (size_t i = 0; i < grid.size() - 5; i++)
-		for (size_t j = 0; j < grid[i].size(); j++)
-			if (rand() % 3 == 0)
-				grid[i][j] = new DynamicMino(DYNAMIC_COLOR, 0, 0);
-	for (size_t i = grid.size() - 3; i < grid.size(); i++)
-		for (size_t j = 0; j < grid[i].size(); j++)
-			if (rand() % 3 == 0)
-				grid[i][j] = new StaticMino(STATIC_COLOR);
-}
 void GameLoop::draw()
 {
 	for (size_t i = 0; i < grid.size(); i++)
@@ -30,21 +19,24 @@ void GameLoop::draw()
 				grid[i][j]->draw(j, i);
 }
 
-void GameLoop::update()
+bool GameLoop::update()
 {
 	frame++;
 
-	if (frame % dropSpeed == 0)
+	if (frame % DROP_SPEED == 0)
 	{
 		bool dynamicMinosDroppable = true;
+		bool dynamicMinosPresent = false;
 
-		for (size_t i = grid.size() - 1; i != SIZE_MAX; i--) // stop once wraparound
+		// Check if minos can drop
+		for (size_t i = grid.size() - 1; i != SIZE_MAX; i--)
 		{
 			for (size_t j = 0; j < grid[i].size(); j++)
 			{
 				DynamicMino *dm = dynamic_cast<DynamicMino*>(grid[i][j]);
 				if (grid[i][j] == nullptr || dm == nullptr)
 					continue;
+				dynamicMinosPresent = true;
 				if (i == grid.size() - 1)
 				{
 					dynamicMinosDroppable = false;
@@ -60,13 +52,16 @@ void GameLoop::update()
 			if (!dynamicMinosDroppable)
 				break;
 		}
-		if (dynamicMinosDroppable)
+		
+		// Drop minos
+		if (dynamicMinosDroppable && dynamicMinosPresent)
 		{
-			for (size_t i = grid.size() - 2; i != SIZE_MAX; i--) // stop once wraparound
+			for (size_t i = grid.size() - 2; i != SIZE_MAX; i--)
 			{
 				for (size_t j = 0; j < grid[i].size(); j++)
 				{
-					if (grid[i][j] != nullptr && dynamic_cast<DynamicMino*>(grid[i][j]) == nullptr)
+					DynamicMino *dm = dynamic_cast<DynamicMino*>(grid[i][j]);
+					if (grid[i][j] != nullptr && dm == nullptr)
 						continue;
 					if (grid[i][j] != nullptr && grid[i + 1][j] == nullptr)
 					{
@@ -76,12 +71,86 @@ void GameLoop::update()
 				}
 			}
 		}
+
+		// If minos can't drop, make them static
 		else
 		{
 			for (size_t i = 0; i < grid.size(); i++)
+			{
 				for (size_t j = 0; j < grid[i].size(); j++)
+				{
 					if (grid[i][j] != nullptr)
-						grid[i][j] = new StaticMino(STATIC_COLOR);
+					{
+						DynamicMino* dm = dynamic_cast<DynamicMino*>(grid[i][j]);
+						if (dm == nullptr)
+							continue;
+						grid[i][j] = new StaticMino(dm->getColor());
+						delete dm;
+					}
+				}
+			}
+
+			// Check for full rows
+			for (size_t i = 0; i < grid.size(); i++)
+			{
+				bool rowFull = true;
+				for (size_t j = 0; j < grid[i].size(); j++)
+				{
+					if (grid[i][j] == nullptr)
+					{
+						rowFull = false;
+						break;
+					}
+				}
+				if (rowFull)
+				{
+					for (size_t j = 0; j < grid[i].size(); j++)
+					{
+						delete grid[i][j];
+						grid[i][j] = nullptr;
+					}
+					for (size_t k = i; k != 0; k--)
+					{
+						for (size_t j = 0; j < grid[k].size(); j++)
+						{
+							grid[k][j] = grid[k - 1][j];
+							grid[k - 1][j] = nullptr;
+						}
+					}
+				}
+			}
+		
+			// then, spawn in a new piece
+			if (!spawnNewTetromino())
+				return false;
 		}
 	}
+
+	return true;
+}
+
+bool GameLoop::spawnNewTetromino()
+{
+	PieceType type = static_cast<PieceType>(rand() % 7);
+	std::vector<DynamicMino*> piece = ShapeManager::getPiece(type);
+	int spawningOffset = (CELLS_X - 4) / 2;
+
+	for (size_t i = 0; i < piece.size(); i++)
+	{
+		if (piece[i] == nullptr)
+			continue;
+		if (grid[i / 4][(i % 4) + spawningOffset] != nullptr)
+		{
+			gameOver();
+			return false;
+		}
+		grid[i / 4][(i % 4) + spawningOffset] = piece[i];
+	}
+
+	return true;
+}
+
+void GameLoop::gameOver()
+{
+	std::cout << "💀💀💀 Game Over! 💀💀💀" << std::endl;
 }

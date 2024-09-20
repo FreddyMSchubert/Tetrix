@@ -12,7 +12,6 @@ int main()
 	SetTargetFPS(60);
 
 	GameLoop game;
-	game.initRandomly();
 
 	while (!WindowShouldClose())
 	{
@@ -20,7 +19,8 @@ int main()
 
 		ClearBackground(BLACK);
 
-		game.update();
+		if (!game.update())
+			break; // game over
 		game.draw();
 
 		EndDrawing();

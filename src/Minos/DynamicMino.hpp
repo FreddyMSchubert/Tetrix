@@ -7,10 +7,10 @@
 class DynamicMino : public Mino
 {
 	private:
-		int pivotX, pivotY;
+		float pivotX, pivotY;
 
 	public:
-		DynamicMino(Color color, int pivotX, int pivotY) :
+		DynamicMino(Color color, float pivotX, float pivotY) :
 					Mino(color), pivotX(pivotX), pivotY(pivotY) {}
 		bool movePossible(bool right);
 		bool rotatePossible(bool clockwise);
