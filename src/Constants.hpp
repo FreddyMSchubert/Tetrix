@@ -41,4 +41,4 @@ enum class PieceType
 
 // game settings
 
-#define DROP_SPEED 10		// every X frames, drop minos by 1 cell
+#define DROP_SPEED 30		// every X frames, drop minos by 1 cell
