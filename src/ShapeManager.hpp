@@ -3,8 +3,9 @@
 #include <vector>
 #include <raylib.h>
 #include <iostream>
-#include "./Minos/DynamicMino.hpp"
 #include "Constants.hpp"
+#include "Structs.hpp"
+#include "Mino.hpp"
 
 class ShapeManager
 {
@@ -13,5 +14,5 @@ class ShapeManager
 		~ShapeManager() {};
 	
 	public:
-		static std::vector<DynamicMino*> getPiece(PieceType type);
+		static std::vector<Mino*> getPiece(PieceType type, GridPos &Pivot);
 };
