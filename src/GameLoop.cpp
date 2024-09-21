@@ -17,7 +17,7 @@ void GameLoop::draw()
 	for (size_t i = 0; i < grid.size(); i++)
 		for (size_t j = 0; j < grid[i].size(); j++)
 			if (grid[i][j] != nullptr)
-				grid[i][j]->draw(j, i);
+				DrawRectangle(j * CELL_SIZE, i * CELL_SIZE, CELL_SIZE, CELL_SIZE, grid[i][j]->getColor());
 }
 
 bool GameLoop::update()
@@ -33,12 +33,20 @@ bool GameLoop::update()
 		nextUpdate = 0;
 	if (!IsKeyPressed(KEY_SPACE) && inputState.spacePressedLastFrame)
 		while (moveDynamicMinos(0, 1));
+	if (!IsKeyPressed(KEY_UP) && inputState.upPressedLastFrame)
+		rotateDynamicMinos(false);
+	if (!IsKeyPressed(KEY_A) && inputState.aPressedLastFrame)
+		rotateDynamicMinos(false);
+	if (!IsKeyPressed(KEY_D) && inputState.dPressedLastFrame)
+		rotateDynamicMinos(true);
 
 	inputState.rightPressedLastFrame = IsKeyPressed(KEY_RIGHT);
 	inputState.leftPressedLastFrame = IsKeyPressed(KEY_LEFT);
 	inputState.downPressedLastFrame = IsKeyPressed(KEY_DOWN);
 	inputState.upPressedLastFrame = IsKeyPressed(KEY_UP);
 	inputState.spacePressedLastFrame = IsKeyPressed(KEY_SPACE);
+	inputState.aPressedLastFrame = IsKeyPressed(KEY_A);
+	inputState.dPressedLastFrame = IsKeyPressed(KEY_D);
 
 	// Update grid state
 	if (nextUpdate == 0)
@@ -54,14 +62,13 @@ bool GameLoop::update()
 			{
 				for (size_t j = 0; j < grid[i].size(); j++)
 				{
-					if (grid[i][j] != nullptr)
-					{
-						DynamicMino* dm = dynamic_cast<DynamicMino*>(grid[i][j]);
-						if (dm == nullptr)
-							continue;
-						grid[i][j] = new StaticMino(dm->getColor());
-						delete dm;
-					}
+					if (grid[i][j] == nullptr)
+						continue;
+					Mino* dm = dynamic_cast<Mino*>(grid[i][j]);
+					if (dm == nullptr || !dm->getIsDynamic())
+						continue;
+					grid[i][j] = new Mino(dm->getColor(), false);
+					delete dm;
 				}
 			}
 
@@ -107,9 +114,10 @@ bool GameLoop::update()
 bool GameLoop::spawnNewTetromino()
 {
 	PieceType type = static_cast<PieceType>(rand() % 7);
-	std::vector<DynamicMino*> piece = ShapeManager::getPiece(type);
+	std::vector<Mino*> piece = ShapeManager::getPiece(type, pivot);
 	int spawningOffset = (CELLS_X - 4) / 2;
 
+	pivot.x += spawningOffset;
 	for (size_t i = 0; i < piece.size(); i++)
 	{
 		if (piece[i] == nullptr)
@@ -147,8 +155,8 @@ bool GameLoop::moveDynamicMinos(int right, int down)
 		{
 			for (size_t j = 0; j < grid[i].size(); j++)
 			{
-				DynamicMino *dm = dynamic_cast<DynamicMino*>(grid[i][j]);
-				if (grid[i][j] == nullptr || dm == nullptr)
+				Mino *dm = dynamic_cast<Mino*>(grid[i][j]);
+				if (grid[i][j] == nullptr || dm == nullptr || !dm->getIsDynamic())
 					continue;
 				dynamicMinosPresent = true;
 				if (j + right < 0 || j + right >= grid[i].size())
@@ -156,8 +164,10 @@ bool GameLoop::moveDynamicMinos(int right, int down)
 					dynamicMinosMovable = false;
 					break;
 				}
-				DynamicMino *dmGoal = dynamic_cast<DynamicMino*>(grid[i][j + right]);
-				if (grid[i][j + right] != nullptr && dmGoal == nullptr)
+				if (grid[i][j + right] == nullptr)
+					continue;
+				Mino *dmGoal = dynamic_cast<Mino*>(grid[i][j + right]);
+				if (!dmGoal->getIsDynamic())
 				{
 					dynamicMinosMovable = false;
 					break;
@@ -173,14 +183,15 @@ bool GameLoop::moveDynamicMinos(int right, int down)
 		size_t step = right > 0 ? -1 : 1;
 		if (dynamicMinosMovable && dynamicMinosPresent)
 		{
+			pivot.x += right;
 			for (size_t i = 0; i < grid.size(); i++)
 			{
 				for (size_t j = start; j != end; j += step)
 				{
 					if (grid[i][j] == nullptr)
 						continue;
-					DynamicMino *dm = dynamic_cast<DynamicMino*>(grid[i][j]);
-					if (dm == nullptr)
+					Mino *dm = dynamic_cast<Mino*>(grid[i][j]);
+					if (!dm->getIsDynamic())
 						continue;
 					if (grid[i][j + right] == nullptr)
 					{
@@ -203,8 +214,8 @@ bool GameLoop::moveDynamicMinos(int right, int down)
 		{
 			for (size_t j = 0; j < grid[i].size(); j++)
 			{
-				DynamicMino *dm = dynamic_cast<DynamicMino*>(grid[i][j]);
-				if (grid[i][j] == nullptr || dm == nullptr)
+				Mino *dm = dynamic_cast<Mino*>(grid[i][j]);
+				if (grid[i][j] == nullptr || dm == nullptr || !dm->getIsDynamic())
 					continue;
 				dynamicMinosPresent = true;
 				if (i + down < 0 || i + down >= grid.size())
@@ -212,8 +223,10 @@ bool GameLoop::moveDynamicMinos(int right, int down)
 					dynamicMinosMovable = false;
 					break;
 				}
-				DynamicMino *dmGoal = dynamic_cast<DynamicMino*>(grid[i + down][j]);
-				if (grid[i + down][j] != nullptr && dmGoal == nullptr)
+				if (grid[i + down][j] == nullptr)
+					continue;
+				Mino *dmGoal = dynamic_cast<Mino*>(grid[i + down][j]);
+				if (!dmGoal->getIsDynamic())
 				{
 					dynamicMinosMovable = false;
 					break;
@@ -229,14 +242,15 @@ bool GameLoop::moveDynamicMinos(int right, int down)
 		size_t step = down > 0 ? -1 : 1;
 		if (dynamicMinosMovable && dynamicMinosPresent)
 		{
+			pivot.y += down;
 			for (size_t i = start; i != end; i += step)
 			{
 				for (size_t j = 0; j < grid[i].size(); j++)
 				{
 					if (grid[i][j] == nullptr)
 						continue;
-					DynamicMino *dm = dynamic_cast<DynamicMino*>(grid[i][j]);
-					if (dm == nullptr)
+					Mino *dm = dynamic_cast<Mino*>(grid[i][j]);
+					if (dm == nullptr || !dm->getIsDynamic())
 						continue;
 					if (grid[i + down][j] == nullptr)
 					{
@@ -250,4 +264,71 @@ bool GameLoop::moveDynamicMinos(int right, int down)
 	}
 
 	return changeOccurred;
+}
+
+bool GameLoop::rotateDynamicMinos(bool clockwise)
+{
+	std::vector<std::pair<Mino*, GridPos>> dynamicMinos;
+	std::vector<std::pair<Mino*, GridPos>> newDynamicMinos;
+
+	// 1. Get a vector of all dynamic minos
+	for (size_t i = 0; i < grid.size(); i++)
+	{
+		for (size_t j = 0; j < grid[i].size(); j++)
+		{
+			Mino *dm = dynamic_cast<Mino*>(grid[i][j]);
+			if (grid[i][j] == nullptr || dm == nullptr || !dm->getIsDynamic())
+				continue;
+			dynamicMinos.push_back({dm, {static_cast<int>(i), static_cast<int>(j)}});
+		}
+	}
+	if (dynamicMinos.empty())
+		return false;
+
+	// 2. Check if minos can rotate
+	for (size_t i = 0; i < dynamicMinos.size(); i++)
+	{
+		GridPos newPos = getRotationAroundPivot(dynamicMinos[i].second, clockwise);
+		if (newPos.x < 0 || newPos.x >= static_cast<int>(grid[0].size()) || newPos.y < 0 || newPos.y >= static_cast<int>(grid.size()))
+			return false;
+		if (grid[newPos.y][newPos.x] != nullptr && !dynamic_cast<Mino*>(grid[newPos.y][newPos.x])->getIsDynamic())
+			return false;
+		newDynamicMinos.push_back({dynamicMinos[i].first, newPos});
+	}
+
+	// 3. Rotate minos
+	for (size_t i = 0; i < dynamicMinos.size(); i++)
+	{
+		grid[dynamicMinos[i].second.y][dynamicMinos[i].second.x] = nullptr;
+	}
+	for (size_t i = 0; i < newDynamicMinos.size(); i++)
+	{
+		grid[newDynamicMinos[i].second.y][newDynamicMinos[i].second.x] = newDynamicMinos[i].first;
+	}
+	return !newDynamicMinos.empty();
+}
+
+GridPos GameLoop::getRotationAroundPivot(GridPos pos, bool clockwise)
+{
+	int relX = pos.x - pivot.x;
+	int relY = pos.y - pivot.y;
+
+	int newRelX, newRelY;
+
+	if (clockwise)
+	{
+		newRelX = relY;
+		newRelY = -relX;
+	}
+	else
+	{
+		newRelX = -relY;
+		newRelY = relX;
+	}
+
+	GridPos newPos;
+	newPos.x = newRelX + pivot.x;
+	newPos.y = newRelY + pivot.y;
+
+	return newPos;
 }

@@ -3,19 +3,18 @@
 #include <iostream>
 
 #include <raylib.h>
-#include "../Constants.hpp"
+#include "./Constants.hpp"
 
 class Mino
 {
 	private:
 		Color color;
+		bool isDynamic;
 
 	public:
-		Mino() : color(WHITE) {};
-		Mino(Color color) : color(color) {}
+		Mino(Color color, bool isDynamic) : color(color), isDynamic(isDynamic) {}
 		virtual ~Mino() {}
 
 		Color getColor() { return color; }
-
-		void draw(int cellX, int cellY);
+		bool getIsDynamic() { return isDynamic; }
 };

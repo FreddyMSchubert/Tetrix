@@ -5,10 +5,10 @@
 #include <vector>
 #include <iostream>
 
-#include "./Minos/Mino.hpp"
-#include "./Minos/DynamicMino.hpp"
-#include "./Minos/StaticMino.hpp"
+#include "./Mino.hpp"
 #include "./ShapeManager.hpp"
+#include "./Constants.hpp"
+#include "./Structs.hpp"
 
 typedef struct InputState {
 	bool rightPressedLastFrame = false;		// move right
@@ -16,6 +16,8 @@ typedef struct InputState {
 	bool downPressedLastFrame = false;		// drop faster
 	bool upPressedLastFrame = false;		// rotate
 	bool spacePressedLastFrame = false;		// hard drop
+	bool aPressedLastFrame = false;			// rotate left
+	bool dPressedLastFrame = false;			// rotate right
 } InputState;
 
 class GameLoop
@@ -24,6 +26,7 @@ class GameLoop
 		std::vector<std::vector<Mino*>> grid;	// origin is top-left
 		unsigned int nextUpdate = DROP_SPEED;
 		InputState inputState;
+		GridPos pivot;
 
 	public:
 		GameLoop();
@@ -34,4 +37,6 @@ class GameLoop
 		bool spawnNewTetromino();
 		void gameOver();
 		bool moveDynamicMinos(int right, int down);
+		bool rotateDynamicMinos(bool clockwise);
+		GridPos getRotationAroundPivot(GridPos pos, bool clockwise);
 };

@@ -1,43 +1,44 @@
 #include "ShapeManager.hpp"
 
-std::vector<DynamicMino*> ShapeManager::getPiece(PieceType type)
+std::vector<Mino*> ShapeManager::getPiece(PieceType type, GridPos &Pivot)
 {
+	std::vector<Mino*> piece(8, nullptr);
 	switch (type)
 	{
 		case PieceType::I:
-			return	{new DynamicMino(I_PIECE_COLOR, 2, 1), new DynamicMino(I_PIECE_COLOR, 1, 1), new DynamicMino(I_PIECE_COLOR, 0, 1), new DynamicMino(I_PIECE_COLOR, -1, 1),
-					nullptr, nullptr, nullptr, nullptr,
-					nullptr, nullptr, nullptr, nullptr,
-					nullptr, nullptr, nullptr, nullptr};
+			Pivot = {0, 1};
+			piece = {new Mino(I_PIECE_COLOR, true), new Mino(I_PIECE_COLOR, true), new Mino(I_PIECE_COLOR, true), new Mino(I_PIECE_COLOR, true)};
+			break;
 		case PieceType::J:
-			return	{new DynamicMino(J_PIECE_COLOR, 1.5f, 1.5f), nullptr, nullptr, nullptr,
-					new DynamicMino(J_PIECE_COLOR, 1.5f, 0.5f), new DynamicMino(J_PIECE_COLOR, 0.5f, 0.5f), new DynamicMino(J_PIECE_COLOR, -0.5f, 0.5f), nullptr,
-					nullptr, nullptr, nullptr, nullptr,
-					nullptr, nullptr, nullptr, nullptr};
+			Pivot = {1, 1};
+			piece = {new Mino(J_PIECE_COLOR, true), nullptr, nullptr, nullptr,
+					new Mino(J_PIECE_COLOR, true), new Mino(J_PIECE_COLOR, true), new Mino(J_PIECE_COLOR, true), nullptr};
+			break;
 		case PieceType::L:
-			return	{nullptr, nullptr, new DynamicMino(L_PIECE_COLOR, -0.5f, 1.5f), nullptr,
-					new DynamicMino(L_PIECE_COLOR, 1.5f, 0.5f), new DynamicMino(L_PIECE_COLOR, 0.5f, 0.5f), new DynamicMino(L_PIECE_COLOR, -0.5f, 0.5f), nullptr,
-					nullptr, nullptr, nullptr, nullptr,
-					nullptr, nullptr, nullptr, nullptr};
+			Pivot = {1, 1};
+			piece = {nullptr, nullptr, new Mino(L_PIECE_COLOR, true), nullptr,
+					new Mino(L_PIECE_COLOR, true), new Mino(L_PIECE_COLOR, true), new Mino(L_PIECE_COLOR, true), nullptr};
+			break;
 		case PieceType::O:
-			return	{nullptr, new DynamicMino(O_PIECE_COLOR, 1, 1), new DynamicMino(O_PIECE_COLOR, 0, 1), nullptr,
-					nullptr, new DynamicMino(O_PIECE_COLOR, 1, 0), new DynamicMino(O_PIECE_COLOR, 0, 0), nullptr,
-					nullptr, nullptr, nullptr, nullptr,
-					nullptr, nullptr, nullptr, nullptr};
+			Pivot = {0, 0};
+			piece = {nullptr, new Mino(O_PIECE_COLOR, true), new Mino(O_PIECE_COLOR, true), nullptr,
+					nullptr, new Mino(O_PIECE_COLOR, true), new Mino(O_PIECE_COLOR, true), nullptr};
+			break;
 		case PieceType::T:
-			return	{nullptr, new DynamicMino(T_PIECE_COLOR, 0.5f, 1.5f), nullptr, nullptr,
-					new DynamicMino(T_PIECE_COLOR, 1.5f, 0.5f), new DynamicMino(T_PIECE_COLOR, 0.5f, 0.5f), new DynamicMino(T_PIECE_COLOR, -0.5f, 0.5f), nullptr,
-					nullptr, nullptr, nullptr, nullptr,
-					nullptr, nullptr, nullptr, nullptr};
+			Pivot = {1, 1};
+			piece = {nullptr, new Mino(T_PIECE_COLOR, true), nullptr, nullptr,
+					new Mino(T_PIECE_COLOR, true), new Mino(T_PIECE_COLOR, true), new Mino(T_PIECE_COLOR, true), nullptr};
+			break;
 		case PieceType::S:
-			return	{nullptr, new DynamicMino(S_PIECE_COLOR, 0.5f, 1.5f), new DynamicMino(S_PIECE_COLOR, -0.5f, 1.5f), nullptr,
-					new DynamicMino(S_PIECE_COLOR, 1.5f, 0.5f), new DynamicMino(S_PIECE_COLOR, 0.5f, 0.5f), nullptr, nullptr,
-					nullptr, nullptr, nullptr, nullptr,
-					nullptr, nullptr, nullptr, nullptr};
+			Pivot = {1, 1};
+			piece = {nullptr, new Mino(S_PIECE_COLOR, true), new Mino(S_PIECE_COLOR, true), nullptr,
+					new Mino(S_PIECE_COLOR, true), new Mino(S_PIECE_COLOR, true), nullptr, nullptr};
+			break;
 		case PieceType::Z:
-			return	{new DynamicMino(Z_PIECE_COLOR, 1.5f, 1.5f), new DynamicMino(Z_PIECE_COLOR, 0.5f, 1.5f), nullptr, nullptr,
-					nullptr, new DynamicMino(Z_PIECE_COLOR, 0.5f, 0.5f), new DynamicMino(Z_PIECE_COLOR, -0.5f, 0.5f), nullptr,
-					nullptr, nullptr, nullptr, nullptr,
-					nullptr, nullptr, nullptr, nullptr};
+			Pivot = {1, 1};
+			piece = {new Mino(Z_PIECE_COLOR, true), new Mino(Z_PIECE_COLOR, true), nullptr, nullptr,
+					nullptr, new Mino(Z_PIECE_COLOR, true), new Mino(Z_PIECE_COLOR, true), nullptr};
+			break;
 	}
+	return piece;
 }
