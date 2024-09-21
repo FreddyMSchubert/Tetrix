@@ -34,7 +34,7 @@ bool GameLoop::update()
 	if (!IsKeyPressed(KEY_SPACE) && inputState.spacePressedLastFrame)
 		while (moveDynamicMinos(0, 1));
 	if (!IsKeyPressed(KEY_UP) && inputState.upPressedLastFrame)
-		rotateDynamicMinos(true);
+		rotateDynamicMinos(false);
 	if (!IsKeyPressed(KEY_A) && inputState.aPressedLastFrame)
 		rotateDynamicMinos(false);
 	if (!IsKeyPressed(KEY_D) && inputState.dPressedLastFrame)
@@ -279,7 +279,7 @@ bool GameLoop::rotateDynamicMinos(bool clockwise)
 			Mino *dm = dynamic_cast<Mino*>(grid[i][j]);
 			if (grid[i][j] == nullptr || dm == nullptr || !dm->getIsDynamic())
 				continue;
-			dynamicMinos.push_back({dm, {static_cast<int>(j), static_cast<int>(i)}});
+			dynamicMinos.push_back({dm, {static_cast<int>(i), static_cast<int>(j)}});
 		}
 	}
 	if (dynamicMinos.empty())
@@ -296,7 +296,7 @@ bool GameLoop::rotateDynamicMinos(bool clockwise)
 		newDynamicMinos.push_back({dynamicMinos[i].first, newPos});
 	}
 
-	// 2. Rotate minos
+	// 3. Rotate minos
 	for (size_t i = 0; i < dynamicMinos.size(); i++)
 	{
 		grid[dynamicMinos[i].second.y][dynamicMinos[i].second.x] = nullptr;
