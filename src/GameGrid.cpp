@@ -86,10 +86,42 @@ bool GameGrid::update()
 	lastMovementUpdate++;
 
 	// Input handling
-	if (!IsKeyDown(KEY_RIGHT) && inputState.rightPressedLastFrame)
-		moveDynamicMinos(1, 0);
-	if (!IsKeyDown(KEY_LEFT) && inputState.leftPressedLastFrame)
-		moveDynamicMinos(-1, 0);
+	if (IsKeyDown(KEY_RIGHT))
+	{
+		if (!inputState.rightPressedLastFrame)
+		{
+			moveDynamicMinos(1, 0);
+			rightKeyHoldTime = 0;
+		}
+		else
+		{
+			rightKeyHoldTime++;
+			if (rightKeyHoldTime >= DAS_DELAY && (rightKeyHoldTime - DAS_DELAY) % ARR_RATE == 0)
+				moveDynamicMinos(1, 0);
+		}
+	}
+	else
+	{
+		rightKeyHoldTime = 0;
+	}
+	if (IsKeyDown(KEY_LEFT))
+	{
+		if (!inputState.leftPressedLastFrame)
+		{
+			moveDynamicMinos(-1, 0);
+			leftKeyHoldTime = 0;
+		}
+		else
+		{
+			leftKeyHoldTime++;
+			if (leftKeyHoldTime >= DAS_DELAY && (leftKeyHoldTime - DAS_DELAY) % ARR_RATE == 0)
+				moveDynamicMinos(-1, 0);
+		}
+	}
+	else
+	{
+		leftKeyHoldTime = 0;
+	}
 	if (IsKeyDown(KEY_DOWN) && !inputState.downPressedLastFrame)
 		nextUpdate = 0;
 	if (!IsKeyDown(KEY_SPACE) && inputState.spacePressedLastFrame)

@@ -49,3 +49,5 @@ enum class PieceType
 
 #define PIECE_LOOKAHEAD 3
 #define MAX_PIECE_QUEUE 20
+#define DAS_DELAY 10	// Delay before auto-shift starts (in frames)
+#define ARR_RATE 2		// frames between auto-shift after DAS start

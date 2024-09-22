@@ -33,6 +33,8 @@ class GameGrid
 		InputState inputState;
 		GridPos pivot;
 		unsigned int lastMovementUpdate = 0;
+		int rightKeyHoldTime = 0;
+		int leftKeyHoldTime = 0;
 
 		unsigned int level = 0;
 		unsigned int score = 0;
