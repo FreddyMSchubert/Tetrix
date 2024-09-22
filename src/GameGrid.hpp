@@ -21,7 +21,7 @@ typedef struct InputState {
 	bool shiftPressedLastFrame = false;		// rotate right
 } InputState;
 
-class GameLoop
+class GameGrid
 {
 	private:
 		std::vector<std::vector<Mino*>> grid;	// origin is top-left
@@ -40,8 +40,8 @@ class GameLoop
 		float speed = 1.0f;
 
 	public:
-		GameLoop();
-		~GameLoop();
+		GameGrid();
+		~GameGrid();
 
 		void draw();
 		bool update();

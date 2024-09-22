@@ -1,6 +1,6 @@
 #include "raylib.h"
 
-#include "GameLoop.hpp"
+#include "GameGrid.hpp"
 #include "Constants.hpp"
 
 int main()
@@ -11,7 +11,7 @@ int main()
 
 	SetTargetFPS(60);
 
-	GameLoop game;
+	GameGrid grid;
 
 	while (!WindowShouldClose())
 	{
@@ -19,9 +19,9 @@ int main()
 
 		ClearBackground(BLACK);
 
-		if (!game.update())
+		if (!grid.update())
 			break; // game over
-		game.draw();
+		grid.draw();
 
 		EndDrawing();
 	}

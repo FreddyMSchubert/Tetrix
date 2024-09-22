@@ -1,13 +1,13 @@
-#include "GameLoop.hpp"
+#include "GameGrid.hpp"
 
-GameLoop::GameLoop()
+GameGrid::GameGrid()
 {
 	grid = std::vector<std::vector<Mino*>>(CELLS_Y, std::vector<Mino*>(CELLS_X, nullptr));
 
 	for (size_t i = 0; i < MAX_PIECE_QUEUE; i++)
 		upcomingPieces.push_back(pickNewPiece());
 }
-GameLoop::~GameLoop()
+GameGrid::~GameGrid()
 {
 	for (auto& row : grid)
 		for (auto& cell : row)
@@ -15,7 +15,7 @@ GameLoop::~GameLoop()
 				delete cell;
 }
 
-void GameLoop::draw()
+void GameGrid::draw()
 {
 	// draw grid
 	for (int i = 0; i < CELLS_X; ++i)
@@ -80,7 +80,7 @@ void GameLoop::draw()
 	}
 }
 
-bool GameLoop::update()
+bool GameGrid::update()
 {
 	nextUpdate--;
 	lastMovementUpdate++;
@@ -228,7 +228,7 @@ bool GameLoop::update()
 	return true;
 }
 
-bool GameLoop::spawnNewTetromino()
+bool GameGrid::spawnNewTetromino()
 {
 	PieceType type = upcomingPieces[0];
 	upcomingPieces.erase(upcomingPieces.begin());
@@ -258,7 +258,7 @@ bool GameLoop::spawnNewTetromino()
 	return true;
 }
 
-PieceType GameLoop::pickNewPiece()
+PieceType GameGrid::pickNewPiece()
 {
 	if (bag.empty())
 		bag = ShapeManager::getBag();
@@ -268,7 +268,7 @@ PieceType GameLoop::pickNewPiece()
 	return piece;
 }
 
-void GameLoop::holdPiece()
+void GameGrid::holdPiece()
 {
 	if (heldPiece == nullptr)
 	{
@@ -288,10 +288,8 @@ void GameLoop::holdPiece()
 
 // Returns whether anything changed
 // input should be (-1, 1) to move it left and down
-bool GameLoop::moveDynamicMinos(int right, int down)
+bool GameGrid::moveDynamicMinos(int right, int down)
 {
-	lastMovementUpdate = 0;
-
 	bool changeOccurred = false;
 
 	// 1. move horizontally
@@ -412,14 +410,15 @@ bool GameLoop::moveDynamicMinos(int right, int down)
 			}
 		}
 	}
+	
+	if (changeOccurred)
+		lastMovementUpdate = 0;
 
 	return changeOccurred;
 }
 
-bool GameLoop::rotateDynamicMinos(bool clockwise)
+bool GameGrid::rotateDynamicMinos(bool clockwise)
 {
-	lastMovementUpdate = 0;
-
 	std::vector<std::pair<Mino*, GridPos>> dynamicMinos;
 	std::vector<std::pair<Mino*, GridPos>> newDynamicMinos;
 
@@ -457,10 +456,14 @@ bool GameLoop::rotateDynamicMinos(bool clockwise)
 	{
 		grid[newDynamicMinos[i].second.y][newDynamicMinos[i].second.x] = newDynamicMinos[i].first;
 	}
+
+	if (!newDynamicMinos.empty())
+		lastMovementUpdate = 0;
+
 	return !newDynamicMinos.empty();
 }
 
-GridPos GameLoop::getRotationAroundPivot(GridPos pos, bool clockwise)
+GridPos GameGrid::getRotationAroundPivot(GridPos pos, bool clockwise)
 {
 	int relX = pos.x - pivot.x;
 	int relY = pos.y - pivot.y;
@@ -485,7 +488,7 @@ GridPos GameLoop::getRotationAroundPivot(GridPos pos, bool clockwise)
 	return newPos;
 }
 
-bool GameLoop::deleteDynamicMinos()
+bool GameGrid::deleteDynamicMinos()
 {
 	bool changeOccurred = false;
 	for (size_t j = 0; j < grid.size(); j++)
