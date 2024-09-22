@@ -51,9 +51,27 @@ void GameLoop::draw()
 		{
 			if (piece[j] == nullptr)
 				continue;
-
 			int x = grid[0].size() * CELL_SIZE + margin + (j % 4) * CELL_SIZE;
 			int y = margin + (i * pieceSize) + (j / 4) * CELL_SIZE + (pieceSize * 2);
+			DrawRectangle(x, y, CELL_SIZE, CELL_SIZE, piece[j]->getColor());
+		}
+		for (size_t j = 0; j < piece.size(); j++)
+			if (piece[j] != nullptr)
+				delete piece[j];
+	}
+
+	// draw held piece
+	DrawRectangle(grid[0].size() * CELL_SIZE + margin, pieceSize, pieceSize, pieceSize, DARKGRAY);
+	if (heldPiece != nullptr)
+	{
+		GridPos pos;
+		std::vector<Mino*> piece = ShapeManager::getPiece(*heldPiece, pos);
+		for (size_t j = 0; j < piece.size(); j++)
+		{
+			if (piece[j] == nullptr)
+				continue;
+			int x = grid[0].size() * CELL_SIZE + margin + (j % 4) * CELL_SIZE;
+			int y = margin + (j / 4) * CELL_SIZE + pieceSize;
 			DrawRectangle(x, y, CELL_SIZE, CELL_SIZE, piece[j]->getColor());
 		}
 		for (size_t j = 0; j < piece.size(); j++)
@@ -96,9 +114,7 @@ bool GameLoop::update()
 	// Update grid state
 	if (nextUpdate == 0)
 	{
-		nextUpdate = DROP_SPEED;
-		if (IsKeyDown(KEY_DOWN))
-			nextUpdate = SPED_UP_DROP_SPEED;
+		nextUpdate = DROP_SPEED * speed;
 
 		// Try to drop, if nothing changed, turn dynamics static
 		if (!moveDynamicMinos(0, 1))
@@ -151,7 +167,7 @@ bool GameLoop::update()
 			unsigned int prevLevel = level;
 			level = linesCleared / 10;
 			if (level != prevLevel)
-				nextUpdate = DROP_SPEED / (level * LEVEL_UP_SPEED_INCREASE);
+				speed *= LEVEL_UP_SPEED_INCREASE;
 			if (clearedRows > 0)
 			{
 				switch (clearedRows)

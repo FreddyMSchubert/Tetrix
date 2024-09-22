@@ -36,6 +36,7 @@ class GameLoop
 		unsigned int level = 0;
 		unsigned int score = 0;
 		unsigned int linesCleared = 0;
+		float speed = 1.0f;
 
 	public:
 		GameLoop();
