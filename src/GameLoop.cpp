@@ -39,6 +39,24 @@ void GameLoop::draw()
 	DrawText(("LVL " + std::to_string(level)).c_str(), leftOffset, 20, 15, WHITE);
 	DrawText(("SCR " + std::to_string(score)).c_str(), leftOffset, 35, 15, WHITE);
 	DrawText(("LNS " + std::to_string(linesCleared)).c_str(), leftOffset, 50, 15, WHITE);
+
+	// draw upcoming pieces
+	int margin = 10;
+	int pieceSize = 4 * CELL_SIZE;
+	for (size_t i = 0; i < PIECE_LOOKAHEAD; i++)
+	{
+		GridPos pos;
+		std::vector<Mino*> piece = ShapeManager::getPiece(upcomingPieces[i], pos);
+		for (size_t j = 0; j < piece.size(); j++)
+		{
+			if (piece[j] == nullptr)
+				continue;
+
+			int x = grid[0].size() * CELL_SIZE + margin + (j % 4) * CELL_SIZE;
+			int y = margin + (i * pieceSize) + (j / 4) * CELL_SIZE + (pieceSize * 2);
+			DrawRectangle(x, y, CELL_SIZE, CELL_SIZE, piece[j]->getColor());
+		}
+	}
 }
 
 bool GameLoop::update()
@@ -88,8 +106,7 @@ bool GameLoop::update()
 					Mino* dm = dynamic_cast<Mino*>(grid[i][j]);
 					if (dm == nullptr || !dm->getIsDynamic())
 						continue;
-					grid[i][j] = new Mino(dm->getColor(), false);
-					delete dm;
+					grid[i][j]->setIsDynamic(false);
 				}
 			}
 

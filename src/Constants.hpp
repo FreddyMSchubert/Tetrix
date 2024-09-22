@@ -9,7 +9,7 @@
 #define CELLS_Y 20
 #define GRIDE_WIDTH CELL_SIZE * CELLS_X
 #define GRIDE_HEIGHT CELL_SIZE * CELLS_Y
-#define SIDEBAR_WIDTH 100
+#define SIDEBAR_WIDTH (CELL_SIZE * 4) + 20
 #define SCREEN_WIDTH GRIDE_WIDTH + SIDEBAR_WIDTH
 #define SCREEN_HEIGHT GRIDE_HEIGHT
 
@@ -45,5 +45,5 @@ enum class PieceType
 
 // backend game settings
 
-#define PIECE_LOOKAHEAD 5
+#define PIECE_LOOKAHEAD 3
 #define MAX_PIECE_QUEUE 20

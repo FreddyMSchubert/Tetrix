@@ -17,4 +17,5 @@ class Mino
 
 		Color getColor() { return color; }
 		bool getIsDynamic() { return isDynamic; }
+		void setIsDynamic(bool newState) { this->isDynamic = newState; }
 };
