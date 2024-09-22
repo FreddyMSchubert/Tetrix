@@ -56,6 +56,9 @@ void GameLoop::draw()
 			int y = margin + (i * pieceSize) + (j / 4) * CELL_SIZE + (pieceSize * 2);
 			DrawRectangle(x, y, CELL_SIZE, CELL_SIZE, piece[j]->getColor());
 		}
+		for (size_t j = 0; j < piece.size(); j++)
+			if (piece[j] != nullptr)
+				delete piece[j];
 	}
 }
 
@@ -78,6 +81,8 @@ bool GameLoop::update()
 		rotateDynamicMinos(false);
 	if (!IsKeyPressed(KEY_D) && inputState.dPressedLastFrame)
 		rotateDynamicMinos(true);
+	if (!IsKeyPressed(KEY_LEFT_SHIFT) && inputState.shiftPressedLastFrame)
+		holdPiece();
 
 	inputState.rightPressedLastFrame = IsKeyPressed(KEY_RIGHT);
 	inputState.leftPressedLastFrame = IsKeyPressed(KEY_LEFT);
@@ -86,6 +91,7 @@ bool GameLoop::update()
 	inputState.spacePressedLastFrame = IsKeyPressed(KEY_SPACE);
 	inputState.aPressedLastFrame = IsKeyPressed(KEY_A);
 	inputState.dPressedLastFrame = IsKeyPressed(KEY_D);
+	inputState.shiftPressedLastFrame = IsKeyPressed(KEY_LEFT_SHIFT);
 
 	// Update grid state
 	if (nextUpdate == 0)
@@ -142,7 +148,10 @@ bool GameLoop::update()
 				}
 			}
 			linesCleared += clearedRows;
+			unsigned int prevLevel = level;
 			level = linesCleared / 10;
+			if (level != prevLevel)
+				nextUpdate = DROP_SPEED / (level * LEVEL_UP_SPEED_INCREASE);
 			if (clearedRows > 0)
 			{
 				switch (clearedRows)
@@ -182,6 +191,7 @@ bool GameLoop::spawnNewTetromino()
 		for (size_t i = upcomingPieces.size(); i < PIECE_LOOKAHEAD; i++)
 			upcomingPieces.push_back(pickNewPiece());
 	}
+	currentPiece = type;
 
 	std::vector<Mino*> piece = ShapeManager::getPiece(type, pivot);
 	int spawningOffset = (CELLS_X - 4) / 2;
@@ -193,7 +203,7 @@ bool GameLoop::spawnNewTetromino()
 			continue;
 		if (grid[i / 4][(i % 4) + spawningOffset] != nullptr)
 		{
-			gameOver();
+			std::cout << "💀💀💀 Game Over! 💀💀💀" << std::endl;
 			return false;
 		}
 		grid[i / 4][(i % 4) + spawningOffset] = piece[i];
@@ -212,9 +222,22 @@ PieceType GameLoop::pickNewPiece()
 	return piece;
 }
 
-void GameLoop::gameOver()
+void GameLoop::holdPiece()
 {
-	std::cout << "💀💀💀 Game Over! 💀💀💀" << std::endl;
+	if (heldPiece == nullptr)
+	{
+		heldPiece = new PieceType(currentPiece);
+		deleteDynamicMinos();
+		spawnNewTetromino();
+	}
+	else
+	{
+		PieceType nextPiece = *heldPiece;
+		heldPiece = new PieceType(currentPiece);
+		deleteDynamicMinos();
+		upcomingPieces.insert(upcomingPieces.begin(), nextPiece);
+		spawnNewTetromino();
+	}
 }
 
 // Returns whether anything changed
@@ -410,4 +433,24 @@ GridPos GameLoop::getRotationAroundPivot(GridPos pos, bool clockwise)
 	newPos.y = newRelY + pivot.y;
 
 	return newPos;
+}
+
+bool GameLoop::deleteDynamicMinos()
+{
+	bool changeOccurred = false;
+	for (size_t j = 0; j < grid.size(); j++)
+	{
+		for (size_t i = 0; i < grid[j].size(); i++)
+		{
+			if (grid[j][i] == nullptr)
+				continue;
+			Mino *dm = dynamic_cast<Mino*>(grid[j][i]);
+			if (dm == nullptr || !dm->getIsDynamic())
+				continue;
+			delete grid[j][i];
+			grid[j][i] = nullptr;
+			changeOccurred = true;
+		}
+	}
+	return changeOccurred;
 }
