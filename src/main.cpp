@@ -2,7 +2,6 @@
 
 #include "GameLoop.hpp"
 #include "Constants.hpp"
-#include "DrawingUtils.hpp"
 
 int main()
 {
@@ -22,7 +21,6 @@ int main()
 
 		if (!game.update())
 			break; // game over
-		DrawingUtils::drawGrid();
 		game.draw();
 
 		EndDrawing();

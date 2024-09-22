@@ -3,6 +3,9 @@
 GameLoop::GameLoop()
 {
 	grid = std::vector<std::vector<Mino*>>(CELLS_Y, std::vector<Mino*>(CELLS_X, nullptr));
+
+	for (size_t i = 0; i < MAX_PIECE_QUEUE; i++)
+		upcomingPieces.push_back(pickNewPiece());
 }
 GameLoop::~GameLoop()
 {
@@ -14,10 +17,28 @@ GameLoop::~GameLoop()
 
 void GameLoop::draw()
 {
+	// draw grid
+	for (int i = 0; i < CELLS_X; ++i)
+	{
+		for (int j = 0; j < CELLS_Y; ++j)
+		{
+			int x = i * CELL_SIZE;
+			int y = j * CELL_SIZE;
+			DrawRectangleLines(x, y, CELL_SIZE, CELL_SIZE, GRID_COLOR);
+		}
+	}
+
+	// draw minos
 	for (size_t i = 0; i < grid.size(); i++)
 		for (size_t j = 0; j < grid[i].size(); j++)
 			if (grid[i][j] != nullptr)
 				DrawRectangle(j * CELL_SIZE, i * CELL_SIZE, CELL_SIZE, CELL_SIZE, grid[i][j]->getColor());
+
+	// draw progress
+	int leftOffset = grid[0].size() * CELL_SIZE + 5;
+	DrawText(("LVL " + std::to_string(level)).c_str(), leftOffset, 20, 15, WHITE);
+	DrawText(("SCR " + std::to_string(score)).c_str(), leftOffset, 35, 15, WHITE);
+	DrawText(("LNS " + std::to_string(linesCleared)).c_str(), leftOffset, 50, 15, WHITE);
 }
 
 bool GameLoop::update()
@@ -73,6 +94,7 @@ bool GameLoop::update()
 			}
 
 			// Check for full rows
+			int clearedRows = 0;
 			for (size_t i = 0; i < grid.size(); i++)
 			{
 				bool rowFull = true;
@@ -86,6 +108,7 @@ bool GameLoop::update()
 				}
 				if (rowFull)
 				{
+					clearedRows++;
 					for (size_t j = 0; j < grid[i].size(); j++)
 					{
 						delete grid[i][j];
@@ -101,6 +124,28 @@ bool GameLoop::update()
 					}
 				}
 			}
+			linesCleared += clearedRows;
+			level = linesCleared / 10;
+			if (clearedRows > 0)
+			{
+				switch (clearedRows)
+				{
+					case 1:
+						score += 40 * (level + 1);
+						break;
+					case 2:
+						score += 100 * (level + 1);
+						break;
+					case 3:
+						score += 300 * (level + 1);
+						break;
+					case 4:
+						score += 1200 * (level + 1);
+						break;
+					default:
+						std::cout << "What? How did you clear something other than 0-4 rows?" << std::endl;
+				}
+			}
 		
 			// then, spawn in a new piece
 			if (!spawnNewTetromino())
@@ -113,7 +158,14 @@ bool GameLoop::update()
 
 bool GameLoop::spawnNewTetromino()
 {
-	PieceType type = static_cast<PieceType>(rand() % 7);
+	PieceType type = upcomingPieces[0];
+	upcomingPieces.erase(upcomingPieces.begin());
+	if (upcomingPieces.size() < PIECE_LOOKAHEAD)
+	{
+		for (size_t i = upcomingPieces.size(); i < PIECE_LOOKAHEAD; i++)
+			upcomingPieces.push_back(pickNewPiece());
+	}
+
 	std::vector<Mino*> piece = ShapeManager::getPiece(type, pivot);
 	int spawningOffset = (CELLS_X - 4) / 2;
 
@@ -131,6 +183,16 @@ bool GameLoop::spawnNewTetromino()
 	}
 
 	return true;
+}
+
+PieceType GameLoop::pickNewPiece()
+{
+	if (bag.empty())
+		bag = ShapeManager::getBag();
+	int pieceIndex = rand() % bag.size();
+	PieceType piece = bag[pieceIndex];
+	bag.erase(bag.begin() + pieceIndex);
+	return piece;
 }
 
 void GameLoop::gameOver()

@@ -42,3 +42,8 @@ enum class PieceType
 
 #define DROP_SPEED 30		// every X frames, drop minos by 1 cell
 #define SPED_UP_DROP_SPEED 3
+
+// backend game settings
+
+#define PIECE_LOOKAHEAD 5
+#define MAX_PIECE_QUEUE 20

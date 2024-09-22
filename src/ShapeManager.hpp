@@ -15,4 +15,5 @@ class ShapeManager
 	
 	public:
 		static std::vector<Mino*> getPiece(PieceType type, GridPos &Pivot);
+		static std::vector<PieceType> getBag();
 };

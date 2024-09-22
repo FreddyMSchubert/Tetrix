@@ -42,3 +42,13 @@ std::vector<Mino*> ShapeManager::getPiece(PieceType type, GridPos &Pivot)
 	}
 	return piece;
 }
+
+std::vector<PieceType> ShapeManager::getBag()
+{
+	std::vector<PieceType> bag;
+	for (size_t i = 0; i < 7; i++)
+	{
+		bag.push_back(static_cast<PieceType>(i));
+	}
+	return bag;
+}

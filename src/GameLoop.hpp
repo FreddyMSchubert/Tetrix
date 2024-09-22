@@ -24,9 +24,15 @@ class GameLoop
 {
 	private:
 		std::vector<std::vector<Mino*>> grid;	// origin is top-left
+		std::vector<PieceType> upcomingPieces;
+		std::vector<PieceType> bag;
 		unsigned int nextUpdate = DROP_SPEED;
 		InputState inputState;
 		GridPos pivot;
+
+		unsigned int level = 0;
+		unsigned int score = 0;
+		unsigned int linesCleared = 0;
 
 	public:
 		GameLoop();
@@ -35,6 +41,7 @@ class GameLoop
 		void draw();
 		bool update();
 		bool spawnNewTetromino();
+		PieceType pickNewPiece();
 		void gameOver();
 		bool moveDynamicMinos(int right, int down);
 		bool rotateDynamicMinos(bool clockwise);
