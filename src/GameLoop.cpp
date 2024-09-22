@@ -83,40 +83,70 @@ void GameLoop::draw()
 bool GameLoop::update()
 {
 	nextUpdate--;
+	lastMovementUpdate++;
 
 	// Input handling
-	if (!IsKeyPressed(KEY_RIGHT) && inputState.rightPressedLastFrame)
+	if (!IsKeyDown(KEY_RIGHT) && inputState.rightPressedLastFrame)
 		moveDynamicMinos(1, 0);
-	if (!IsKeyPressed(KEY_LEFT) && inputState.leftPressedLastFrame)
+	if (!IsKeyDown(KEY_LEFT) && inputState.leftPressedLastFrame)
 		moveDynamicMinos(-1, 0);
-	if (IsKeyPressed(KEY_DOWN) && !inputState.downPressedLastFrame)
+	if (IsKeyDown(KEY_DOWN) && !inputState.downPressedLastFrame)
 		nextUpdate = 0;
-	if (!IsKeyPressed(KEY_SPACE) && inputState.spacePressedLastFrame)
+	if (!IsKeyDown(KEY_SPACE) && inputState.spacePressedLastFrame)
+	{
 		while (moveDynamicMinos(0, 1));
-	if (!IsKeyPressed(KEY_UP) && inputState.upPressedLastFrame)
+		lastMovementUpdate = PIECE_STATIFICATION_DELAY;
+	}
+	if (!IsKeyDown(KEY_UP) && inputState.upPressedLastFrame)
 		rotateDynamicMinos(false);
-	if (!IsKeyPressed(KEY_A) && inputState.aPressedLastFrame)
+	if (!IsKeyDown(KEY_A) && inputState.aPressedLastFrame)
 		rotateDynamicMinos(false);
-	if (!IsKeyPressed(KEY_D) && inputState.dPressedLastFrame)
+	if (!IsKeyDown(KEY_D) && inputState.dPressedLastFrame)
 		rotateDynamicMinos(true);
-	if (!IsKeyPressed(KEY_LEFT_SHIFT) && inputState.shiftPressedLastFrame)
+	if (!IsKeyDown(KEY_LEFT_SHIFT) && inputState.shiftPressedLastFrame)
 		holdPiece();
 
-	inputState.rightPressedLastFrame = IsKeyPressed(KEY_RIGHT);
-	inputState.leftPressedLastFrame = IsKeyPressed(KEY_LEFT);
-	inputState.downPressedLastFrame = IsKeyPressed(KEY_DOWN);
-	inputState.upPressedLastFrame = IsKeyPressed(KEY_UP);
-	inputState.spacePressedLastFrame = IsKeyPressed(KEY_SPACE);
-	inputState.aPressedLastFrame = IsKeyPressed(KEY_A);
-	inputState.dPressedLastFrame = IsKeyPressed(KEY_D);
-	inputState.shiftPressedLastFrame = IsKeyPressed(KEY_LEFT_SHIFT);
+	inputState.rightPressedLastFrame = IsKeyDown(KEY_RIGHT);
+	inputState.leftPressedLastFrame = IsKeyDown(KEY_LEFT);
+	inputState.downPressedLastFrame = IsKeyDown(KEY_DOWN);
+	inputState.upPressedLastFrame = IsKeyDown(KEY_UP);
+	inputState.spacePressedLastFrame = IsKeyDown(KEY_SPACE);
+	inputState.aPressedLastFrame = IsKeyDown(KEY_A);
+	inputState.dPressedLastFrame = IsKeyDown(KEY_D);
+	inputState.shiftPressedLastFrame = IsKeyDown(KEY_LEFT_SHIFT);
+
 
 	// Update grid state
 	if (nextUpdate == 0)
 	{
 		nextUpdate = DROP_SPEED * speed;
+		if (inputState.downPressedLastFrame && nextUpdate > SPED_UP_DROP_SPEED)
+			nextUpdate = SPED_UP_DROP_SPEED;
 
-		// Try to drop, if nothing changed, turn dynamics static
+		bool midAir = true;
+		for (size_t i = 0; i < grid.size(); i++)
+		{
+			for (size_t j = 0; j < grid[i].size(); j++)
+			{
+				if (grid[i][j] == nullptr)
+					continue;
+				Mino* dm = dynamic_cast<Mino*>(grid[i][j]);
+				if (dm == nullptr || !dm->getIsDynamic())
+					continue;
+				if (i + 1 < grid.size() && grid[i + 1][j] != nullptr)
+				{
+					Mino* dmGoal = dynamic_cast<Mino*>(grid[i + 1][j]);
+					if (dmGoal == nullptr || !dmGoal->getIsDynamic())
+						midAir = false;
+				}
+				else if (i + 1 == grid.size())
+					midAir = false;
+			}
+		}
+		if (lastMovementUpdate < PIECE_STATIFICATION_DELAY && !midAir)
+			return true;
+
+		// make minos static
 		if (!moveDynamicMinos(0, 1))
 		{
 			for (size_t i = 0; i < grid.size(); i++)
@@ -260,6 +290,8 @@ void GameLoop::holdPiece()
 // input should be (-1, 1) to move it left and down
 bool GameLoop::moveDynamicMinos(int right, int down)
 {
+	lastMovementUpdate = 0;
+
 	bool changeOccurred = false;
 
 	// 1. move horizontally
@@ -386,6 +418,8 @@ bool GameLoop::moveDynamicMinos(int right, int down)
 
 bool GameLoop::rotateDynamicMinos(bool clockwise)
 {
+	lastMovementUpdate = 0;
+
 	std::vector<std::pair<Mino*, GridPos>> dynamicMinos;
 	std::vector<std::pair<Mino*, GridPos>> newDynamicMinos;
 

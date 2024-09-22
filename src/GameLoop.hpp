@@ -32,6 +32,7 @@ class GameLoop
 		unsigned int nextUpdate = DROP_SPEED;
 		InputState inputState;
 		GridPos pivot;
+		unsigned int lastMovementUpdate = 0;
 
 		unsigned int level = 0;
 		unsigned int score = 0;
