@@ -1,5 +1,6 @@
 tetrix
 obj/
+build/
 
 .vscode
 .idea
